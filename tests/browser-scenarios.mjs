@@ -3,7 +3,7 @@ export async function exercise({page,check,shot,profile}) {
  const ids=['vectors','dot-products','linear-maps','rank','projections','eigenvectors','svd','gradients','softmax','embeddings','attention','proofs'];
  const titles=['Vectors & combinations','Dot products & norms','Matrices & linear maps','Bases, rank & null spaces','Projections & least squares','Eigenvectors & stability','SVD & low-rank structure','Gradients & backpropagation','Probability & softmax','Embeddings & the residual stream','Self-attention, assembled','From equations to proofs'];
  const answers=[0,1,1,1,0,1,1,0,1,1,1,1],transfers=[0,0,1,1,1,1,0,1,1,1,1,1];
- const clickChapter=async id=>{if(profile.width<=720)await page.locator('#menu-button').click();await page.locator(`.chapter-link[data-lesson="${id}"]`).click();await page.waitForFunction(id=>location.hash==='#'+id,id);};
+ const clickChapter=async id=>{if(profile.width<=720)await page.locator('#menu-button').click();await page.locator(`.chapter-link[data-lesson="${id}"]`).click();await page.waitForFunction(({id,title})=>location.hash==='#'+id&&document.querySelector('h1')?.textContent===title,{id,title:titles[ids.indexOf(id)]});};
  const noOverflow=async()=>check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'No page-level horizontal overflow');
  check(await page.locator('h1').textContent().then(x=>x.includes('linear algebra')),'Overview names the subject');
  await noOverflow();
@@ -14,12 +14,22 @@ export async function exercise({page,check,shot,profile}) {
   check(await page.locator('#sidebar').evaluate(el=>el.inert),'Closed mobile menu cannot receive keyboard focus');
   await page.locator('#menu-button').click();
   check(await page.locator('#main').evaluate(el=>el.inert),'Open mobile menu makes lesson content inert');
+  await page.locator('#sidebar .about-open').click();await page.keyboard.press('Escape');await page.locator('#about-dialog').waitFor({state:'hidden'});
+  check(await page.locator('#menu-button').getAttribute('aria-expanded')==='true','Dialog Escape leaves the underlying mobile menu open');
   await page.locator('#sidebar .about-open').focus();await page.keyboard.press('Tab');
   check(await page.locator('#menu-button').evaluate(el=>el===document.activeElement),'Mobile menu keeps Tab within its controls');
   await page.keyboard.press('Escape');
   check(await page.locator('#menu-button').evaluate(el=>el===document.activeElement),'Escape closes menu and restores its trigger focus');
  }
- await page.locator('.header-right .reference-open').click();await page.locator('#reference-search').fill('Jacobian');check(await page.locator('.reference-row').count()===1,'Reference search filters notation');await page.keyboard.press('Escape');check(!await page.locator('#reference-dialog').isVisible(),'Reference closes with Escape');
+ const reference=page.locator('#reference-dialog'),referenceOpener=page.locator('.header-right .reference-open');
+ await referenceOpener.click();await page.locator('#reference-search').fill('Jacobian');check(await page.locator('.reference-row').count()===1,'Reference search filters notation');
+ await page.keyboard.press('Escape');await reference.waitFor({state:'hidden'});
+ check(!await reference.isVisible(),'Reference closes with Escape');
+ check(await referenceOpener.evaluate(el=>el===document.activeElement),'Closing reference restores its opener focus');
+ await referenceOpener.click();await page.locator('#reference-search').fill('');await page.keyboard.press('Escape');await reference.waitFor({state:'hidden'});
+ check(!await reference.isVisible(),'Escape also closes reference with an empty search field');
+ await referenceOpener.click();await reference.locator('.dialog-close').click();await reference.waitFor({state:'hidden'});
+ check(!await reference.isVisible(),'Reference close button dismisses the dialog');
  for(let i=0;i<ids.length;i++){
   await clickChapter(ids[i]);check(await page.locator('h1').textContent()===titles[i],`${ids[i]} chapter navigation`);check(await page.locator('#lab-equation').textContent().then(x=>x.length>10),`${ids[i]} computed equation rendered`);
   const range=page.locator('#lab-controls input[type=range]').first();if(await range.count()) {const before=await page.locator('#lab-equation').textContent();await range.focus();await range.press('ArrowRight');const after=await page.locator('#lab-equation').textContent();if(ids[i]!=='svd')check(before!==after,`${ids[i]} range changes output`);}
@@ -58,7 +68,7 @@ export async function exercise({page,check,shot,profile}) {
   await noOverflow();visited.push(ids[i]+' / intuition, math, proof, transfer');
  }
  await page.locator('#complete-button').click();check(await page.locator('#progress-count').textContent()==='1 / 12','Chapter completion persists');await page.reload();check(await page.locator('#progress-count').textContent()==='1 / 12','Progress survives reload');
- await page.locator('.page-footer .about-open').click();await page.locator('#clear-progress').click();check(await page.locator('#progress-count').textContent()==='0 / 12','Reset progress works');check(await page.locator('#complete-button').textContent().then(t=>t.includes('Mark complete')),'Progress reset updates the current chapter action');await page.keyboard.press('Escape');
+ await page.locator('.page-footer .about-open').click();await page.locator('#clear-progress').click();check(await page.locator('#progress-count').textContent()==='0 / 12','Reset progress works');check(await page.locator('#complete-button').textContent().then(t=>t.includes('Mark complete')),'Progress reset updates the current chapter action');await page.keyboard.press('Escape');await page.locator('#about-dialog').waitFor({state:'hidden'});
  if(profile.full){await clickChapter('vectors');await page.locator('.lesson-tab').first().focus();await page.keyboard.press('ArrowRight');check(await page.locator('[data-view=math]').getAttribute('aria-selected')==='true','Tabs support keyboard arrow navigation');}
  return visited;
 }

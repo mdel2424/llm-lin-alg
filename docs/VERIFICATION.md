@@ -64,3 +64,8 @@ The GitHub Actions workflow now requires the browser scenarios before publishing
 ## CI runner compatibility fix
 
 The first reported GitHub run failed while installing browser dependencies on Ubuntu 26.04, which the locked Playwright 1.58.2 does not support. Both workflow jobs now pin `ubuntu-24.04`. The installed Playwright 1.58.2 registry and dependency tables explicitly contain `ubuntu24.04-x64`; this keeps the lockfile and browser versions unchanged. Workflow YAML parsing confirms both job images and that deployment still requires the check job. The corrected GitHub run has not been observed here. Push this change and run the workflow on that new commit (rerunning the old failed commit retains its old workflow).
+
+
+## Reference-dialog Escape fix
+
+CI reached the reference-close assertion but failed on every viewport profile. Dialogs now explicitly handle Escape during capture, prevent the focused search input's default Escape behavior, and close via the native dialog API. Propagation is stopped so dismissing a modal from the mobile sidebar does not also close that underlying menu. Browser scenarios now wait for the dialog's hidden state, check both populated and empty search fields, check the close button and restored opener focus, and verify the mobile menu remains open behind a dismissed dialog. Chapter navigation waits for the requested heading as well as the hash so assertions observe the completed route. These browser regressions remain to be confirmed by the next GitHub run; local Chromium is still restricted.
