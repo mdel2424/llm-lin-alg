@@ -1,0 +1,14 @@
+{
+  "name": "linear-algebra-for-language-models",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An offline, interactive linear algebra course from vectors to LLM proofs.",
+  "scripts": {
+    "test": "node tests/model.test.cjs && node tests/content.test.cjs",
+    "check": "node --check js/model.js && node --check js/lessons.js && node --check js/app.js",
+    "test:browser": "node tests/browser.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.58.2"
+  }
+}

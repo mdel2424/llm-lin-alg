@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" data-type="software" data-radius="sharp" data-buttons="solid">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="An interactive refresher in linear algebra for understanding machine learning and language model proofs. Twelve chapters, from vectors to attention.">
+  <meta name="page-type" content="software"><meta name="site-kind" content="software">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta property="og:title" content="Linear algebra for language models">
+  <meta property="og:description" content="Build the intuition. Work through the math. Follow the proof.">
+  <meta property="og:type" content="website"><meta property="og:image" content="assets/share.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <title>Linear algebra for language models</title>
+  <script defer src="js/model.js"></script><script defer src="js/lessons.js"></script><script defer src="js/app.js"></script>
+</head>
+<body>
+  <!-- Educational software. Split hero; terminal-inspired dark learning environment, one restrained accent; persistent chapter index. Geometry is computed, never a decorative stand-in. Content-sized lessons override marketing screen recipes. -->
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="#overview" aria-label="Linear algebra course overview"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 7l8 7-8 7m11 0h8"/></svg><span>Linear algebra<span class="brand-sub">for language models</span></span></a>
+    <div class="header-right"><span class="edition">Interactive course / 12 chapters</span><button class="text-button reference-open" type="button">Notation & reference <kbd>?</kbd></button><button id="menu-button" class="text-button" type="button" aria-controls="sidebar" aria-expanded="false">Chapters <span aria-hidden="true">☰</span></button></div>
+  </header>
+  <button id="scrim" hidden aria-label="Close chapter menu"></button>
+  <aside class="sidebar" id="sidebar" aria-label="Course chapters"><div id="course-nav"></div><div class="sidebar-bottom"><div class="progress-label"><span>Your progress</span><span id="progress-count">0 / 12</span></div><div class="progress-track" role="progressbar" aria-label="Completed chapters" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0"><span id="progress-fill"></span></div><p id="save-note">Saved on this device</p><button class="text-button about-open" type="button">About this course <span aria-hidden="true">↗</span></button></div></aside>
+  <main id="main" tabindex="-1"></main>
+  <dialog id="reference-dialog" aria-labelledby="reference-title"><div class="dialog-head"><span class="eyebrow">Keep this nearby</span><button class="icon-button dialog-close" aria-label="Close reference">×</button></div><h2 id="reference-title">Notation & reference</h2><p>A translation guide for the symbols you’ll meet.</p><label class="search-label" for="reference-search">Find a symbol or concept</label><input id="reference-search" type="search" placeholder="Try “norm”, “transpose”, or “Jacobian”…"><div id="reference-list"></div><p class="dialog-note">Convention: vectors are columns in proofs; token batches use rows. Each chapter states its shapes.</p></dialog>
+  <dialog id="about-dialog" aria-labelledby="about-title"><div class="dialog-head"><span class="eyebrow">Scope & sources</span><button class="icon-button dialog-close" aria-label="Close about">×</button></div><h2 id="about-title">About this course</h2><p>For someone returning to linear algebra after a first university course. Start at the beginning or use the chapters as a reference.</p><h3>Small models, real computation</h3><p>Every plot and readout is calculated from the controls. The geometry uses two dimensions; attention uses three tokens and two features. Embeddings and weights are chosen for teaching, not learned from text. Token labels do not demonstrate semantic understanding.</p><p>Numerical experiments build intuition. The proof workshops give separate deductive arguments and state their assumptions. This course prepares you for elementary rank, norm and attention arguments; it is not a complete treatment of optimization, probability or LLM theory.</p><h3>Further reading</h3><ul class="source-list"><li><a href="https://www.deeplearningbook.org/contents/linear_algebra.html" target="_blank" rel="noreferrer">Goodfellow, Bengio & Courville · Deep Learning, chapter 2 ↗</a><span>Definitions and a compact linear algebra reference.</span></li><li><a href="https://arxiv.org/html/1706.03762v7#S3.SS2" target="_blank" rel="noreferrer">Vaswani et al. · Attention Is All You Need, §3.2 ↗</a><span>Scaled dot-product attention and multi-head attention.</span></li><li><a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">Hu et al. · LoRA, §4.1 ↗</a><span>Learning factorized low-rank weight updates.</span></li></ul><h3>Local by design</h3><p>No account, analytics, network dependency or backend. Chapter completion is stored in your browser. Clearing browser storage removes it; a private window may not retain it.</p><button id="clear-progress" class="button secondary" type="button">Reset course progress</button><p id="reset-status" role="status"></p><p><a href="FIDELITY.md">Full model notes</a> · <a href="README.md">Source & deployment instructions</a></p></dialog>
+  <noscript><div class="no-script">This course needs JavaScript to run the experiments. Enable JavaScript and reload. The <a href="FIDELITY.md">model notes</a> remain readable.</div></noscript>
+</body>
+</html>
