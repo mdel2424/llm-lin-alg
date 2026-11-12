@@ -59,3 +59,8 @@ Added browser regression scenarios for those behaviors, an integrity-locked `pac
 The direct `npm run test:browser` command was retried with the matching installed Playwright 1.58.2 and cached Chromium 1208. Chromium again terminated before any page could open because the environment prohibits its required process/socket operation (`sandbox_host_linux.cc: shutdown: Operation not permitted`). No browser scenario or website screenshot passed locally. This limitation is unresolved and should not be read as a successful visual sign-off.
 
 The GitHub Actions workflow now requires the browser scenarios before publishing, uploads screenshots/report for review, checks pull requests without deploying, and verifies the final `_site` artifact. Its configuration was checked against the official GitHub Pages and Playwright CI docs. The updated workflow itself has not been run on GitHub here. Use the Actions publishing path; a successful browser job is the remaining release check. No remote publication occurred.
+
+
+## CI runner compatibility fix
+
+The first reported GitHub run failed while installing browser dependencies on Ubuntu 26.04, which the locked Playwright 1.58.2 does not support. Both workflow jobs now pin `ubuntu-24.04`. The installed Playwright 1.58.2 registry and dependency tables explicitly contain `ubuntu24.04-x64`; this keeps the lockfile and browser versions unchanged. Workflow YAML parsing confirms both job images and that deployment still requires the check job. The corrected GitHub run has not been observed here. Push this change and run the workflow on that new commit (rerunning the old failed commit retains its old workflow).

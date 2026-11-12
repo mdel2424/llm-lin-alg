@@ -32,7 +32,7 @@ The site uses relative asset paths and hash navigation, so both repository Pages
 3. Run **Check and publish course to GitHub Pages** from the Actions tab, or push a new commit to `main`.
 4. Check the workflow result and inspect the screenshots in its **browser-review** artifact.
 
-The workflow installs the locked development dependencies, runs syntax/model/content checks, installs Chromium, exercises all chapters at seven viewport/motion profiles, verifies the packaged site, and deploys only after those checks succeed. Pull requests run the same checks without deploying. Failed browser assertions block publication; screenshots still need human review for readability.
+The workflow pins Ubuntu 24.04 to match Playwright 1.58.2 rather than following the moving `ubuntu-latest` image. It installs the locked development dependencies, runs syntax/model/content checks, installs Chromium, exercises all chapters at seven viewport/motion profiles, verifies the packaged site, and deploys only after those checks succeed. Pull requests run the same checks without deploying. Failed browser assertions block publication; screenshots still need human review for readability.
 
 The deployed site has zero runtime dependencies. No deployment was performed from this workspace. Workflow configuration follows the official [GitHub Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) and [Playwright CI setup](https://playwright.dev/docs/ci-intro).
 
