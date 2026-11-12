@@ -39,7 +39,25 @@ export async function exercise({page,check,shot,profile}) {
    check(page.url()===lessonURL,'Skip link preserves the active chapter route');
    check(await page.locator('#main').evaluate(el=>el===document.activeElement),'Skip link focuses the active lesson');
    await page.locator('#input-bx').fill('1');check(await page.locator('#lab-readouts').textContent().then(t=>t.includes('(1, 2)')),'Vector coordinate editor updates readouts');const tip=page.locator('#plot-svg [data-drag]');await tip.focus();await tip.press('ArrowUp');check(await page.locator('#input-by').inputValue()==='2.1','Vector endpoint keyboard control');
-   if(profile.full){const bounds=await tip.boundingBox();await page.mouse.move(bounds.x+bounds.width/2,bounds.y+bounds.height/2);await page.mouse.down();await page.mouse.move(bounds.x+40,bounds.y-15,{steps:4});await page.mouse.up();check(await page.locator('#input-bx').inputValue()!=='1','Vector pointer drag updates input');}
+   if(profile.full){
+    // Raw mouse actions do not scroll or check actionability. The preceding
+    // numeric/keyboard actions can leave the SVG partly outside the viewport.
+    const plot=page.locator('#plot-svg');await plot.scrollIntoViewIfNeeded();
+    const gesture=await tip.evaluate(el=>{
+     const matrix=el.ownerSVGElement.getScreenCTM();if(!matrix)throw new Error('Vector plot has no screen transform');
+     const x=el.cx.baseVal.value,y=el.cy.baseVal.value;
+     const start=new DOMPoint(x,y).matrixTransform(matrix);
+     // One grid unit right and one unit down, from (1, 2.1) to (2, 1.1).
+     const end=new DOMPoint(x+36,y+36).matrixTransform(matrix);
+     return {start:{x:start.x,y:start.y},end:{x:end.x,y:end.y}};
+    });
+    const hit=await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest('[data-drag]')?.getAttribute('data-drag'),gesture.start);
+    check(hit==='b','Vector endpoint is visible and receives pointer input');
+    await page.mouse.move(gesture.start.x,gesture.start.y);await page.mouse.down();
+    try{await page.mouse.move(gesture.end.x,gesture.end.y,{steps:8});}finally{await page.mouse.up();}
+    const bx=Number(await page.locator('#input-bx').inputValue()),by=Number(await page.locator('#input-by').inputValue());
+    check(bx===2&&by===1.1,`Vector pointer drag reaches (2, 1.1); got (${bx}, ${by})`);
+   }
    await page.locator('[data-preset=cancel]').click();check((await page.locator('#lab-readouts .readout-value').last().textContent())==='(0, 0)','Negative combination cancels');
    await shot('first-experiment');
   }

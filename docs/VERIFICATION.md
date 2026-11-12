@@ -69,3 +69,10 @@ The first reported GitHub run failed while installing browser dependencies on Ub
 ## Reference-dialog Escape fix
 
 CI reached the reference-close assertion but failed on every viewport profile. Dialogs now explicitly handle Escape during capture, prevent the focused search input's default Escape behavior, and close via the native dialog API. Propagation is stopped so dismissing a modal from the mobile sidebar does not also close that underlying menu. Browser scenarios now wait for the dialog's hidden state, check both populated and empty search fields, check the close button and restored opener focus, and verify the mobile menu remains open behind a dismissed dialog. Chapter navigation waits for the requested heading as well as the hash so assertions observe the completed route. These browser regressions remain to be confirmed by the next GitHub run; local Chromium is still restricted.
+
+
+## Desktop pointer regression
+
+The next user-supplied CI run passed all chapters on laptop, tablet, mobile, narrow, landscape and reflow profiles (212–217 checks each). Desktop alone failed its additional pointer-drag scenario. That scenario used raw viewport mouse positions without scrolling the diagram into view or checking the element under the pointer. It also based its movement on a fixed pixel offset from a hit-box edge.
+
+The test now scrolls the SVG into view, transforms the actual endpoint and a one-unit displacement into viewport coordinates with `getScreenCTM`, confirms the endpoint is the hit-tested target, and performs a real mouse drag. It asserts the exact destination (2, 1.1) in both coordinate inputs, rather than merely requiring one value to change. This strengthens the gesture check without changing or bypassing the application's drag handler. Desktop confirmation remains pending the next GitHub run.
