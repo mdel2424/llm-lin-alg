@@ -41,3 +41,10 @@ The scenarios visit every chapter and all three views through actual controls; c
 ## Design adaptations
 
 Educational software uses a persistent index, content-height lessons, dark neutral surfaces, locally bundled DejaVu Sans Mono, neutral input/comparison strokes and a single muted-green result accent, and a split introduction. The marketing skill’s dealt marquee, full-screen section locks and stock-asset recipes were omitted because they conflict with the learning task and the intuition-explainer guidance. No stock imagery, missing client assets, invented empirical results, contacts or canonical domain are used. No waiver claims a browser pass.
+
+
+## Terminal restyle review
+
+User direction: clean, modern, dark, terminal-inspired; color permitted sparingly. The page now uses local DejaVu Sans Mono throughout, near-black surfaces, white primary controls, two-pixel corners, and one muted-green accent. Heading emphasis stays white. Active states, focus, progress and computed results share the accent. Diagram comparisons are dashed; result arrows are thicker; quiz outcomes also use check/cross markers and border styles. Favicon and share artwork match the theme. Educational copy now names objects rather than obsolete colors.
+
+After the restyle, `npm run check`, all 12 tests, the 7-file syntax/9-link asset check and the static copy lint passed (0 warnings/failures). The design-skill gate was attempted with the cached Chromium path and again returned `GATE: ERROR` because subprocess/browser checks were prohibited (`EPERM`). No visual, interaction, layout or performance pass is claimed. The gate was not retried after that error. Static palette and local-font-reference checks were also completed; these do not replace browser inspection.

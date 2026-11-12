@@ -20,6 +20,7 @@
   --text:#f2f2f2;
   --muted:#ababab;
   --line:#2b2b2b;
+  --control-border:#686868;
   --grid:#202020;
   --axis:#858585;
   --plot-input:#dedede;
@@ -399,7 +400,7 @@ main {
 }
 .secondary {
   background:transparent;
-  border-color:#555555;
+  border-color:var(--control-border);
   color:var(--text)
 }
 .secondary:hover {
@@ -736,7 +737,7 @@ input[type=range] {
 }
 input[type=number] {
   background:var(--bg);
-  border:1px solid #666666;
+  border:1px solid var(--control-border);
   color:var(--text);
   border-radius:2px;
   min-width:0;
@@ -767,7 +768,7 @@ input[type=number] {
 .preset {
   min-height:36px;
   background:var(--raised);
-  border:1px solid #555555;
+  border:1px solid var(--control-border);
   padding:6px 10px;
   border-radius:2px;
   font-size:11px;
@@ -884,7 +885,7 @@ input[type=number] {
 }
 .choice {
   background:var(--surface);
-  border:1px solid #555555;
+  border:1px solid var(--control-border);
   min-height:44px;
   padding:10px 14px;
   text-align:left;
@@ -1131,7 +1132,7 @@ input[type=number] {
 .token-button {
   flex:1;
   min-width:0;
-  border:1px solid #555555;
+  border:1px solid var(--control-border);
   padding:10px 5px;
   min-height:44px;
   background:var(--raised);
@@ -1307,7 +1308,7 @@ dialog p {
 input[type=search] {
   width:100%;
   min-height:46px;
-  border:1px solid #666666;
+  border:1px solid var(--control-border);
   background:var(--surface);
   color:var(--text);
   padding:10px 13px;
@@ -1361,7 +1362,7 @@ input[type=search] {
 }
 .no-script {
   position:fixed;
-  inset:80px 0 0 264px;
+  inset:var(--header) 0 0 var(--sidebar);
   padding:50px;
   background:var(--bg);
   z-index:20
