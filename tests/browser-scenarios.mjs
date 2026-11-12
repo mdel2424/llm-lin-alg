@@ -7,14 +7,27 @@ export async function exercise({page,check,shot,profile}) {
  const noOverflow=async()=>check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'No page-level horizontal overflow');
  check(await page.locator('h1').textContent().then(x=>x.includes('linear algebra')),'Overview names the subject');
  await noOverflow();
+ await page.keyboard.press('Tab');check(await page.locator('.skip-link').evaluate(el=>el===document.activeElement),'First Tab reaches the skip link');
  const old=await page.locator('#hero-equation').textContent();await page.locator('#hero-reverse').click();check(await page.locator('#hero-equation').textContent()!==old,'Hero vector control recomputes result');await page.locator('#hero-reset').click();
  await shot('overview');visited.push('overview');
+ if(profile.width<=720){
+  check(await page.locator('#sidebar').evaluate(el=>el.inert),'Closed mobile menu cannot receive keyboard focus');
+  await page.locator('#menu-button').click();
+  check(await page.locator('#main').evaluate(el=>el.inert),'Open mobile menu makes lesson content inert');
+  await page.locator('#sidebar .about-open').focus();await page.keyboard.press('Tab');
+  check(await page.locator('#menu-button').evaluate(el=>el===document.activeElement),'Mobile menu keeps Tab within its controls');
+  await page.keyboard.press('Escape');
+  check(await page.locator('#menu-button').evaluate(el=>el===document.activeElement),'Escape closes menu and restores its trigger focus');
+ }
  await page.locator('.header-right .reference-open').click();await page.locator('#reference-search').fill('Jacobian');check(await page.locator('.reference-row').count()===1,'Reference search filters notation');await page.keyboard.press('Escape');check(!await page.locator('#reference-dialog').isVisible(),'Reference closes with Escape');
  for(let i=0;i<ids.length;i++){
   await clickChapter(ids[i]);check(await page.locator('h1').textContent()===titles[i],`${ids[i]} chapter navigation`);check(await page.locator('#lab-equation').textContent().then(x=>x.length>10),`${ids[i]} computed equation rendered`);
   const range=page.locator('#lab-controls input[type=range]').first();if(await range.count()) {const before=await page.locator('#lab-equation').textContent();await range.focus();await range.press('ArrowRight');const after=await page.locator('#lab-equation').textContent();if(ids[i]!=='svd')check(before!==after,`${ids[i]} range changes output`);}
-  const question=page.locator('[data-question=prediction]');check(!await question.locator('.feedback').isVisible(),`${ids[i]} prediction hidden before commitment`);await question.locator(`[data-answer="${answers[i]}"]`).click();check(await question.locator('.feedback').isVisible(),`${ids[i]} prediction feedback revealed`);
+  const question=page.locator('[data-question=prediction]');check(!await question.locator('.feedback').isVisible(),`${ids[i]} prediction hidden before commitment`);await question.locator(`[data-answer="${answers[i]}"]`).click();check(await question.locator('.feedback').isVisible(),`${ids[i]} prediction feedback revealed`);await question.locator('.challenge-reset').click();check(!await page.locator('[data-question=prediction] .feedback').isVisible(),`${ids[i]} prediction resets`);check(await page.locator('[data-question=prediction] [data-answer]').first().evaluate(el=>el===document.activeElement),`${ids[i]} quiz reset preserves keyboard focus`);await page.locator(`[data-question=prediction] [data-answer="${answers[i]}"]`).click();
   if(ids[i]==='vectors'){
+   const lessonURL=page.url();await page.locator('.skip-link').focus();await page.keyboard.press('Enter');
+   check(page.url()===lessonURL,'Skip link preserves the active chapter route');
+   check(await page.locator('#main').evaluate(el=>el===document.activeElement),'Skip link focuses the active lesson');
    await page.locator('#input-bx').fill('1');check(await page.locator('#lab-readouts').textContent().then(t=>t.includes('(1, 2)')),'Vector coordinate editor updates readouts');const tip=page.locator('#plot-svg [data-drag]');await tip.focus();await tip.press('ArrowUp');check(await page.locator('#input-by').inputValue()==='2.1','Vector endpoint keyboard control');
    if(profile.full){const bounds=await tip.boundingBox();await page.mouse.move(bounds.x+bounds.width/2,bounds.y+bounds.height/2);await page.mouse.down();await page.mouse.move(bounds.x+40,bounds.y-15,{steps:4});await page.mouse.up();check(await page.locator('#input-bx').inputValue()!=='1','Vector pointer drag updates input');}
    await page.locator('[data-preset=cancel]').click();check((await page.locator('#lab-readouts .readout-value').last().textContent())==='(0, 0)','Negative combination cancels');
@@ -37,7 +50,7 @@ export async function exercise({page,check,shot,profile}) {
    await page.locator('[data-query="0"]').click();check(await page.locator('#lab-readouts .readout-value').nth(1).textContent()==='1','First causal query sees one key');check(await page.locator('#lab-readouts .readout-value').nth(2).textContent()==='(1, 0.5)','First causal output equals first value');await page.locator('#input-causal').uncheck();check(await page.locator('#lab-readouts .readout-value').nth(1).textContent()==='3','Unmasking exposes all keys');await shot('attention');
   }
   await page.locator('[data-view=math]').click();check(await page.locator('.math-section').count()===4,`${ids[i]} formal bridge has definitions and assumptions`);if(i===10)await shot('formal-bridge');
-  await page.locator('[data-view=proof]').click();for(let step=0;step<4;step++)await page.locator('#proof-next').click();check(await page.locator('.proof-step').count()===4,`${ids[i]} complete proof revealed`);
+  await page.locator('[data-view=proof]').click();for(let step=0;step<4;step++)await page.locator('#proof-next').click();check(await page.locator('.proof-step').count()===4,`${ids[i]} complete proof revealed`);check(await page.locator('#announcer').textContent().then(t=>t.includes('Step 4 of 4')),`${ids[i]} proof step announced`);
   const transfer=page.locator('[data-question=transfer]');check(!await transfer.locator('.feedback').isVisible(),`${ids[i]} transfer hidden before commitment`);await transfer.locator(`[data-answer="${transfers[i]}"]`).click();check(await transfer.locator('.feedback').isVisible(),`${ids[i]} transfer feedback visible`);
   if(i===11)await shot('transfer');
   await page.locator('#proof-reset').click();check(await page.locator('.proof-step').count()===0,`${ids[i]} proof reset`);
@@ -45,7 +58,7 @@ export async function exercise({page,check,shot,profile}) {
   await noOverflow();visited.push(ids[i]+' / intuition, math, proof, transfer');
  }
  await page.locator('#complete-button').click();check(await page.locator('#progress-count').textContent()==='1 / 12','Chapter completion persists');await page.reload();check(await page.locator('#progress-count').textContent()==='1 / 12','Progress survives reload');
- await page.locator('.page-footer .about-open').click();await page.locator('#clear-progress').click();check(await page.locator('#progress-count').textContent()==='0 / 12','Reset progress works');await page.keyboard.press('Escape');
+ await page.locator('.page-footer .about-open').click();await page.locator('#clear-progress').click();check(await page.locator('#progress-count').textContent()==='0 / 12','Reset progress works');check(await page.locator('#complete-button').textContent().then(t=>t.includes('Mark complete')),'Progress reset updates the current chapter action');await page.keyboard.press('Escape');
  if(profile.full){await clickChapter('vectors');await page.locator('.lesson-tab').first().focus();await page.keyboard.press('ArrowRight');check(await page.locator('[data-view=math]').getAttribute('aria-selected')==='true','Tabs support keyboard arrow navigation');}
  return visited;
 }

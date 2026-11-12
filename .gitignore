@@ -3,3 +3,5 @@ node_modules/
 .taste-skill/
 docs/qa/*.png
 docs/qa/report.json
+
+_site/

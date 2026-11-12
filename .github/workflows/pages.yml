@@ -1,39 +1,60 @@
-name: Publish course to GitHub Pages
+name: Check and publish course to GitHub Pages
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
-  pages: write
-  id-token: write
 concurrency:
-  group: github-pages
+  group: github-pages-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install development dependencies
+        run: npm ci --ignore-scripts
+      - name: Check JavaScript and numerical mechanisms
+        run: npm run check && npm test
+      - name: Install Chromium for browser checks
+        run: npx playwright install --with-deps chromium
+      - name: Check all chapters, keyboard controls, and responsive layouts
+        run: npm run test:browser
+      - name: Save screenshots and browser report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: browser-review
+          path: docs/qa/
+          retention-days: 14
+      - name: Package and verify static files
+        run: npm run package
+      - name: Upload site
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
   deploy:
+    if: github.event_name != 'pull_request'
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Check JavaScript and numerical mechanisms
-        run: npm run check && npm test
-      - name: Prepare the static site
-        run: |
-          mkdir -p _site
-          cp index.html style.css .nojekyll README.md FIDELITY.md _site/
-          cp -R js assets _site/
-          mkdir -p _site/docs
-          cp docs/VERIFICATION.md _site/docs/
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-      - name: Deploy
+      - name: Deploy checked artifact
         id: deployment
         uses: actions/deploy-pages@v4
